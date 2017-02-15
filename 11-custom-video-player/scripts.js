@@ -1,73 +1,63 @@
 /* Get elements */
-const player = document.querySelector(".player video");
-const playerButton = document.querySelector(".player__button");
-const progressBar = document.querySelector(".progress .progress__filled");
-const timeBar = document.querySelector(".progress");
-const volumeSlider = document.querySelector("input[name='volume']");
-const playbackRateSlider = document.querySelector("input[name='playbackRate']");
-const timeJumpButtons = document.querySelectorAll("button[data-skip]");
+const player = document.querySelector(".player");
+const video = player.querySelector(".viewer");
+const progress = player.querySelector(".progress");
+const progressBar = player.querySelector(".progress__filled");
+const toggle = player.querySelector(".toggle");
+const skipButtons = player.querySelectorAll("[data-skip]");
+const ranges = player.querySelectorAll(".player__slider");
+const fullscreenToggle = player.querySelector(".fullscreen");
+
 /* Build functions */
-function togglePlay(e) {
-  if (player.paused) {
-    player.play();
-    playerButton.innerHTML = "||";
+function togglePlay() {
+  const method = video.paused ? "play" : "pause";
+  video[method]();
+}
+
+function updateButton(e) {
+  const icon = this.paused ? "►" : "||";
+  toggle.textContent = icon;
+}
+
+function skip() {
+  const time = Number.parseFloat(this.dataset.skip);
+  video.currentTime = video.currentTime + time;
+}
+
+function handleRangeUpdate() {
+  video[this.name] = this.value;
+}
+
+function handleProgress() {
+  const percent = (video.currentTime/video.duration) * 100;
+  progressBar.style.flexBasis = `${percent}%`;
+}
+
+function scrub(e) {
+  const scrubTime = (e.offsetX / progress.offsetWidth) * video.duration;
+  video.currentTime = scrubTime;
+}
+
+function toggleFullscreen() {
+  if (!document.webkitIsFullscreen) {
+    video.webkitRequestFullscreen();
   } else {
-    player.pause();
-    playerButton.innerHTML = "►";
+    document.webkitExitFullscreen();
   }
-}
-
-function progressUpdate(e) {
-  progressBar.style.flexBasis = `${(player.currentTime/player.duration)*100}%`;
-}
-
-function moveTime(e) {
-  console.log(e.keyCode);
-  if (e.keyCode !== 37 && e.keyCode !== 39) return;
-  if (e.keyCode === 37) {
-    player.currentTime = player.currentTime - 5;
-  } else {
-    player.currentTime = player.currentTime + 5;
-  }
-}
-
-function changeVolume(e) {
-  player.volume = volumeSlider.value;
-}
-
-function keyBoardChangeVolume(e) {
-  if (e.keyCode !== 38 && e.keyCode !== 40) return;
-  if (e.keyCode === 38) {
-    player.volume = player.volume + 0.1;
-  } else {
-    player.volume = player.volume - 0.1;
-  }
-
-  volumeSlider.value = player.volume;
-}
-
-function changePlaybackRate(e) {
-  player.playbackRate = playbackRateSlider.value;
-}
-
-function timeJump(e) {
-  player.currentTime = player.currentTime + Number.parseInt(this.dataset["skip"]);
-}
-
-function changeTime(e) {
-  const segment = player.duration/player.videoWidth;
-  player.currentTime = segment * e.offsetX;
 }
 
 /* Hook up event listeners */
-playerButton.addEventListener("click", togglePlay);
-player.addEventListener("timeupdate", progressUpdate);
-volumeSlider.addEventListener("input", changeVolume);
-playbackRateSlider.addEventListener("input", changePlaybackRate);
-timeJumpButtons.forEach(button => button.addEventListener("click", timeJump));
-timeBar.addEventListener("click", changeTime);
-window.addEventListener("keydown", moveTime);
-window.addEventListener("keydown", keyBoardChangeVolume);
+video.addEventListener("click", togglePlay);
+toggle.addEventListener("click", togglePlay);
+video.addEventListener("play", updateButton);
+video.addEventListener("pause", updateButton);
+skipButtons.forEach(button => button.addEventListener("click", skip));
+ranges.forEach(range => range.addEventListener("input", handleRangeUpdate));
+video.addEventListener("timeupdate", handleProgress);
+fullscreenToggle.addEventListener("click", toggleFullscreen);
 
-
-progressBar.style.flexBasis = "0%";
+let mousedown = false;
+progress.addEventListener("click", scrub);
+progress.addEventListener("mousemove", (e) => mousedown && scrub(e));
+progress.addEventListener("mousedown", () => mousedown = true);
+progress.addEventListener("mouseup", () => mousedown = false);
