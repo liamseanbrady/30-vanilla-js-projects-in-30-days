@@ -109,29 +109,21 @@
       let lastChecked; 
 
       function handleCheck(e) {
-        if (shiftKeyDown) {
-          currentCheckboxIndex = checkboxes.findIndex(checkbox => checkbox === this);
-          lastCheckboxIndex = checkboxes.findIndex(checkbox => checkbox === lastChecked);
+        let inBetween = false;
 
-          if (currentCheckboxIndex < lastCheckboxIndex) {
-            checkboxes.slice(currentCheckboxIndex + 1, lastCheckboxIndex).forEach(checkbox => checkbox.checked = true);
-          } else {
-            checkboxes.slice(lastCheckboxIndex + 1, currentCheckboxIndex).forEach(checkbox => checkbox.checked = true);
-          }
+        if (e.shiftKey && this.checked) {
+          checkboxes.forEach(checkbox => {
+            if (checkbox === this || checkbox === lastChecked) {
+              inBetween = !inBetween;
+            }
+
+            if (inBetween) { checkbox.checked = true }
+          });
         }
-
         lastChecked = this;
       }
 
-      function toggleShiftKeyDown(e) {
-        if (e.keyCode !== 16) return;
-        
-        shiftKeyDown = shiftKeyDown ? false : true;
-      }
-
       checkboxes.forEach(checkbox => checkbox.addEventListener("click", handleCheck));
-      window.addEventListener("keydown", toggleShiftKeyDown);
-      window.addEventListener("keyup", toggleShiftKeyDown);
     </script>
   </body>
 </html>
