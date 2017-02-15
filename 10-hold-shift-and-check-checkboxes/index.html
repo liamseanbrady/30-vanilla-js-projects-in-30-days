@@ -104,32 +104,34 @@
     </div>
 
     <script>
+      const checkboxes = Array.from(document.querySelectorAll(".inbox input[type='checkbox']"));
       let shiftKeyDown = false;
-      const allCheckboxes = Array.from(document.querySelectorAll("input[type='checkbox']"));
+      let lastChecked; 
+
+      function handleCheck(e) {
+        if (shiftKeyDown) {
+          currentCheckboxIndex = checkboxes.findIndex(checkbox => checkbox === this);
+          lastCheckboxIndex = checkboxes.findIndex(checkbox => checkbox === lastChecked);
+
+          if (currentCheckboxIndex < lastCheckboxIndex) {
+            checkboxes.slice(currentCheckboxIndex + 1, lastCheckboxIndex).forEach(checkbox => checkbox.checked = true);
+          } else {
+            checkboxes.slice(lastCheckboxIndex + 1, currentCheckboxIndex).forEach(checkbox => checkbox.checked = true);
+          }
+        }
+
+        lastChecked = this;
+      }
 
       function toggleShiftKeyDown(e) {
         if (e.keyCode !== 16) return;
-
+        
         shiftKeyDown = shiftKeyDown ? false : true;
       }
 
-      function manageMultipleChecking(e) {
-        if (!shiftKeyDown) return;
-
-        const checkedCheckboxes = Array.from(document.querySelectorAll("input:checked"));
-        if (checkedCheckboxes[0] === this) return;
-        const nearestHigherCheckbox = checkedCheckboxes[checkedCheckboxes.findIndex(lowerBox => lowerBox === this) - 1];
-
-        const lowerCheckboxPosition = allCheckboxes.findIndex(checkbox => checkbox === this);
-        const higherCheckboxPosition = allCheckboxes.findIndex(checkbox => checkbox === nearestHigherCheckbox);
-
-        if (higherCheckboxPosition === lowerCheckboxPosition - 1) return;
-        allCheckboxes.slice(higherCheckboxPosition + 1, lowerCheckboxPosition).forEach(checkbox => checkbox.checked = true);
-      }
-
+      checkboxes.forEach(checkbox => checkbox.addEventListener("click", handleCheck));
       window.addEventListener("keydown", toggleShiftKeyDown);
       window.addEventListener("keyup", toggleShiftKeyDown);
-      allCheckboxes.forEach(checkbox => checkbox.addEventListener("change", manageMultipleChecking));
     </script>
   </body>
 </html>
