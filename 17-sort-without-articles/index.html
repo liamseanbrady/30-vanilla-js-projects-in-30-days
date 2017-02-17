@@ -44,30 +44,17 @@
 
     <script>
       const bands = ['The Plot in You', 'The Devil Wears Prada', 'Pierce the Veil', 'Norma Jean', 'The Bled', 'Say Anything', 'The Midway State', 'We Came as Romans', 'Counterparts', 'Oh, Sleeper', 'A Skylit Drive', 'Anywhere But Here', 'An Old Dog'];
-      const bandsList = document.querySelector("#bands");
 
-      // Get rid of The, An, and A in front of band names
-      function clean(bandName) {
-        const target = new RegExp("^(the|an|a)$", "i");
-        if (bandName.split(" ")[0].match(target)) {
-          return bandName.split(" ").slice(1).join(" ");
-        } else {
-          return bandName;
-        }
+      function strip(bandName) {
+        return bandName.replace(/^(the|a|an)\s/i, "").trim();
       }
 
-      const sortedBands = bands.sort((bandOne, bandTwo) => {
-        return clean(bandOne) > clean(bandTwo) ? 1 : -1;
-      });
+      const sortedBands = bands.sort((a, b) => strip(a) > strip(b) ? 1 : -1);
 
-      const bandsListContent = bands.map(band => {
-        const html = `
-          <li>${band}</lI>
-        `
-        return html
-      }).join(" ");
-
-      bandsList.innerHTML = bandsListContent;
+      document.querySelector("#bands").innerHTML = 
+        sortedBands
+          .map(band => `<li>${band}</li>`)
+          .join("");
     </script>
 
   </body>
