@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Speech Synthesis</title>
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+      <div class="voiceinator">
+
+        <h1>The Voiceinator 5000</h1>
+
+        <select name="voice" id="voices">
+          <option value="">Select A Voice</option>
+        </select>
+
+        <label for="rate">Rate:</label>
+        <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+
+        <label for="pitch">Pitch:</label>
+
+        <input name="pitch" type="range" min="0" max="2" step="0.1">
+        <textarea name="text">Hello! I love JavaScript 👍</textarea>
+        <button id="stop">Stop!</button>
+        <button id="speak">Speak</button>
+
+      </div>
+
+    <script>
+      const msg = new SpeechSynthesisUtterance();
+      let voices = [];
+      const voicesDropdown = document.querySelector('[name="voice"]');
+      const options = document.querySelectorAll('[type="range"], [name="text"]');
+      const speakButton = document.querySelector('#speak');
+      const stopButton = document.querySelector('#stop');
+      msg.text = document.querySelector("[name='text']").value;
+
+      function doIt() {
+        const regex = new RegExp("^en");
+        const englishVoices = Array.from(speechSynthesis.getVoices()).filter(voice => voice.lang.match(regex));
+        voices.push(...englishVoices);
+        const voicesHTML = voices.map(voice => {
+          return `<option value="${voice.name}_${voice.lang}">${voice.name} (${voice.lang})</option>`;
+        }).join("");
+        voicesDropdown.innerHTML = voicesHTML;
+      }
+
+      function speak() {
+        const voice = voices.find(voice => voice.name === voicesDropdown.value.split("_")[0] && voice.lang === voicesDropdown.value.split("_")[1]);
+        const pitch = parseFloat(Array.from(options).find(option => option.name = "pitch").value);
+        const rate = parseFloat(Array.from(options).find(option => option.name = "rate").value);
+        const text = document.querySelector("[name='text']").value;
+        msg.voice = voice;
+        msg.pitch = pitch;
+        msg.rate = rate;
+        msg.text = text;
+        speechSynthesis.speak(msg);
+      }
+
+      function stop() {
+        speechSynthesis.cancel();
+      }
+
+      window.speechSynthesis.addEventListener("voiceschanged", doIt);
+      speakButton.addEventListener("click", speak);
+      stopButton.addEventListener("click", stop);
+    </script>
+
+  </body>
+</html>
