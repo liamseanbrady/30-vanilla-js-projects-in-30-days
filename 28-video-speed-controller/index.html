@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Video Speed Scrubber</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+    <div class="wrapper">
+      <video class="flex" width="765" height="430" src="https://www.dropbox.com/s/nf6jfkwck1glsyo/12%20-%20flex-wrapping-and-columns.mp4?dl=1" loop controls></video>
+      <div class="speed">
+        <div class="speed-bar">1×</div>
+      </div>
+    </div>
+
+    <script>
+      const speed = document.querySelector(".speed");
+      const bar = speed.querySelector(".speed-bar");
+      const video = document.querySelector(".flex");
+
+      let isDown;
+
+      function track(e) {
+        if (!isDown) return;
+        const baseRate = 0.5;
+        const totalHeight = speed.getBoundingClientRect().height;
+        const yPosition = e.offsetY;
+        const rateSegment = totalHeight/35;
+        const rate = baseRate + (Math.floor(yPosition/rateSegment)/10);
+        video.playbackRate = rate;
+        bar.textContent = `${rate}x`;
+        bar.style.setProperty("height", `${yPosition/totalHeight * 100}%`);
+      }
+
+      speed.addEventListener("mousemove", track);
+      speed.addEventListener("mousedown", () => isDown = true);
+      speed.addEventListener("mouseup", () => isDown = false);
+      speed.addEventListener("mouseleave", () => isDown = false);
+    </script>
+  </body>
+</html>
