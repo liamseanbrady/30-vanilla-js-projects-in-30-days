@@ -19,24 +19,20 @@
       const bar = speed.querySelector(".speed-bar");
       const video = document.querySelector(".flex");
 
-      let isDown;
-
-      function track(e) {
-        if (!isDown) return;
-        const baseRate = 0.5;
-        const totalHeight = speed.getBoundingClientRect().height;
-        const yPosition = e.offsetY;
-        const rateSegment = totalHeight/35;
-        const rate = baseRate + (Math.floor(yPosition/rateSegment)/10);
-        video.playbackRate = rate;
-        bar.textContent = `${rate}x`;
-        bar.style.setProperty("height", `${yPosition/totalHeight * 100}%`);
+      function handleMove(e) {
+        const y = e.pageY - this.offsetTop;
+        const percent = y/this.offsetHeight;
+        const min = 0.4;
+        const max = 4;
+        const height = Math.round(percent*100) + "%";
+        const playbackRate = percent * (max - min) + min;
+        bar.style.setProperty("height", height);
+        video.playbackRate = playbackRate;
+        bar.textContent = playbackRate.toFixed(2) + "x";
+        console.log(height);
       }
 
-      speed.addEventListener("mousemove", track);
-      speed.addEventListener("mousedown", () => isDown = true);
-      speed.addEventListener("mouseup", () => isDown = false);
-      speed.addEventListener("mouseleave", () => isDown = false);
+      speed.addEventListener("mousemove", handleMove);
     </script>
   </body>
 </html>
